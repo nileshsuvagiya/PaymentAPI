@@ -14,5 +14,7 @@ namespace PaymentsAPI.Interfaces
         string UpdatePayment(PaymentBM payment);
 
         string GetCurrency(string accountNumber);
+
+        decimal GetCurrencyExchangeRates(string fromCurrency, string toCurrency);
     }
 }

@@ -62,11 +62,11 @@ namespace PaymentsAPI.Service
 
         public IEnumerable<PaymentBM> GetPayments()
         {
-            var payments = (from pay in _context.Payments
-                            join acc in _context.Accounts on pay.AccountId equals acc.Id
-                            join cus in _context.Customers on pay.CustomerId equals cus.Id
-                            join pm in _context.PaymentMethods on pay.PaymentMethodId equals pm.Id
-                            join sts in _context.PaymentStatuses on pay.PaymentStatusId equals sts.Id
+            var payments = (from pay in _context.Payment
+                            join acc in _context.Account on pay.AccountId equals acc.Id
+                            join cus in _context.Customer on pay.CustomerId equals cus.Id
+                            join pm in _context.PaymentMethod on pay.PaymentMethodId equals pm.Id
+                            join sts in _context.PaymentStatus on pay.PaymentStatusId equals sts.Id
                             select new PaymentBM
                             {
                                 CustomerName = $" {cus.LastName}, {cus.FirstName}",
@@ -88,24 +88,24 @@ namespace PaymentsAPI.Service
             Payment newPayment = null;
 
             //Payment to this account
-            var payeeAccount = _context.Accounts.Where(x => x.AccountNumber == payment.PayeeAccountNumber).FirstOrDefault();            
+            var payeeAccount = _context.Account.Where(x => x.AccountNumber == payment.PayeeAccountNumber).FirstOrDefault();            
 
             //Payment from this account
-            var payorAccount = _context.Accounts.Where(x => x.AccountNumber == payment.PayorAccountNumber).FirstOrDefault();
+            var payorAccount = _context.Account.Where(x => x.AccountNumber == payment.PayorAccountNumber).FirstOrDefault();
 
             string transactionId = "";
 
             if (payorAccount != null && payeeAccount != null)
             {
 
-                var payorCustomerId = _context.Customers.Where(x => x.Account.Any(y => y.Id == payorAccount.Id)).Select(x => x.Id).FirstOrDefault();
+                var payorCustomerId = _context.Customer.Where(x => x.Account.Any(y => y.Id == payorAccount.Id)).Select(x => x.Id).FirstOrDefault();
 
-                var paymentMethodId = _context.PaymentMethods.Where(x => x.PaymentMethodName == payment.PaymentMethod).Select(x => x.Id).FirstOrDefault();
-                var statusId = _context.PaymentStatuses.Where(x => x.Status == PaymentSatus.Completed.ToString()).Select(x => x.Id).FirstOrDefault();
+                var paymentMethodId = _context.PaymentMethod.Where(x => x.PaymentMethodName == payment.PaymentMethod).Select(x => x.Id).FirstOrDefault();
+                var statusId = _context.PaymentStatus.Where(x => x.Status == PaymentSatus.Completed.ToString()).Select(x => x.Id).FirstOrDefault();
 
                 transactionId = PaymentHelper.GenerateTransactionId();
 
-                if (_context.Payments.Any(x => x.TransactionId == transactionId))
+                if (_context.Payment.Any(x => x.TransactionId == transactionId))
                 {
                     transactionId = PaymentHelper.GenerateTransactionId();
                 }
@@ -131,7 +131,7 @@ namespace PaymentsAPI.Service
                     TransactionType = payment.TransactionType,
                     Remarks = $"Amount {payment.Amount.ToString()} has been {payment.TransactionType}ed to account {payment.PayeeAccountNumber}. The current balance is {payeeAccount.CurrentBalance} in Payee account {payment.PayeeAccountNumber}. The current balance is {payorAccount.CurrentBalance} in Payor account {payment.PayeeAccountNumber}."
                 };
-                _context.Payments.Add(newPayment);
+                _context.Payment.Add(newPayment);
 
                 _context.SaveChanges();
             }
@@ -141,7 +141,19 @@ namespace PaymentsAPI.Service
 
         public string GetCurrency(string accountNumber)
         {
-            return _context.Accounts.Where(x => x.AccountNumber == accountNumber).Select(x=>x.Currency).FirstOrDefault();
+            return _context.Account.Where(x => x.AccountNumber == accountNumber).Select(x=>x.Currency).FirstOrDefault();
         }
+
+        public decimal GetCurrencyExchangeRates(string fromCurrency, string toCurrency)
+        {
+            var currencyRatesTable = _context.CurrencyExchangeRates.ToList();
+
+            var fromCurrRates = currencyRatesTable.Where(x => x.CurrencyCode == fromCurrency).Select(x => x.ExchangeRate).FirstOrDefault();
+            var toCurrRates = currencyRatesTable.Where(x => x.CurrencyCode == toCurrency).Select(x => x.ExchangeRate).FirstOrDefault();
+
+            return (toCurrRates / fromCurrRates);
+        }
+
+
     }
 }

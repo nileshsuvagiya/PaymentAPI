@@ -28,31 +28,43 @@ namespace PaymentsAPI.Controllers
             return _paymentService.GetPayments();
         }
 
-      
+
 
         // POST api/<controller>
         [HttpPost]
         public void Post(PaymentBM value)
         {
 
-            if(value == null)
+            //if(value == null)
+            //{
+            //    value = new PaymentBM
+            //    {
+            //        //payee gets payment from payor
+            //        PayeeAccountNumber = "70872490",
+            //        PayeeCurrency = PaymentEnums.Currency.GBP.ToString(),
+
+            //        //payor pay to payee
+            //        PayorAccountNumber = "35933158286",
+            //        PayorCurrency = PaymentEnums.Currency.INR.ToString(),
+
+            //        PaymentMethod = PaymentEnums.PaymentMethod.InternateBanking.ToString(),
+            //        Amount = 10000,                    
+            //        PaymentDate = DateTime.Now.ToString(),
+            //        TransactionType = PaymentEnums.TransactionType.Credit.ToString()
+            //    };
+            //}
+            if (value != null)
             {
-                value = new PaymentBM
-                {
-                    PayeeAccountNumber = "AccountNumber01",
-                    PayeeCurrency = "USD",
+                if (string.IsNullOrEmpty(value.PayeeCurrency)) value.PayeeCurrency = PaymentEnums.Currency.GBP.ToString();
+                if (string.IsNullOrEmpty(value.PayorCurrency)) value.PayorCurrency = PaymentEnums.Currency.INR.ToString();
 
+                value.Amount = value.Amount * _paymentService.GetCurrencyExchangeRates(value.PayorCurrency, value.PayeeCurrency);
+                value.PaymentDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
-                    PayorAccountNumber = "AccountNumber02",
-                    PayorCurrency = "INR",
+                if (string.IsNullOrEmpty(value.PaymentMethod)) value.PaymentMethod = PaymentEnums.PaymentMethod.InternateBanking.ToString();
+                
 
-                    PaymentMethod = PaymentEnums.PaymentMethod.InternateBanking.ToString(),
-                    Amount = 10000,                    
-                    PaymentDate = DateTime.Now.ToString(),
-                    TransactionType = PaymentEnums.TransactionType.Credit.ToString()
-                };
             }
-
             _paymentService.UpdatePayment(value);
         }
 

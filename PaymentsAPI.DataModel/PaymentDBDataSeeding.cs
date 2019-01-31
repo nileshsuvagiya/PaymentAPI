@@ -11,16 +11,16 @@ namespace PaymentsAPI.DataModel
     {
         public static void EnsureSeedDataForContext(this PaymentDBContext context)
         {
-            if(!context.AccountTypes.Any())
+            if(!context.AccountType.Any())
             {
                 List<AccountType> accountTypes = new List<AccountType> {
                     new AccountType { AccountType1 = "Saving"},
                     new AccountType { AccountType1 = "Current"}
                 };
-                context.AccountTypes.AddRange(accountTypes);
+                context.AccountType.AddRange(accountTypes);
             }
 
-            if(!context.PaymentMethods.Any())
+            if(!context.PaymentMethod.Any())
             {
                 List<PaymentMethod> paymentMethods = new List<PaymentMethod>
                 {
@@ -28,10 +28,10 @@ namespace PaymentsAPI.DataModel
                     new PaymentMethod { PaymentMethodName = "DebitCard", PaymentMethodCode ="DB"},
                     new PaymentMethod { PaymentMethodName = "InternetBanking", PaymentMethodCode="IB"}
                 };
-                context.PaymentMethods.AddRange(paymentMethods);
+                context.PaymentMethod.AddRange(paymentMethods);
             }
 
-            if(!context.PaymentStatuses.Any())
+            if(!context.PaymentStatus.Any())
             {
                 List<PaymentStatus> paymentStatuses = new List<PaymentStatus>
                 {
@@ -39,12 +39,12 @@ namespace PaymentsAPI.DataModel
                     new PaymentStatus { Status="Cancelled"},
                     new PaymentStatus { Status="Rejected"}
                 };
-                context.PaymentStatuses.AddRange(paymentStatuses);
+                context.PaymentStatus.AddRange(paymentStatuses);
             }
 
             context.SaveChanges();
 
-            if(!context.Accounts.Any())
+            if(!context.Account.Any())
             {
                 List<Account> accounts = new List<Account>
                 {
@@ -52,7 +52,7 @@ namespace PaymentsAPI.DataModel
                 };
             }
 
-            if(!context.Customers.Any())
+            if(!context.Customer.Any())
             {
                 List<Customer> customers = new List<Customer>
                 {

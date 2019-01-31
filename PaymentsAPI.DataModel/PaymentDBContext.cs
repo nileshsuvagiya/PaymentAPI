@@ -16,22 +16,23 @@ namespace PaymentsAPI.DataModel
         {
         }
 
-        public virtual DbSet<Account> Accounts { get; set; }
-        public virtual DbSet<AccountType> AccountTypes { get; set; }
-        public virtual DbSet<Customer> Customers { get; set; }
-        public virtual DbSet<CustomerPaymentMethod> CustomerPaymentMethods { get; set; }
-        public virtual DbSet<Payment> Payments { get; set; }
-        public virtual DbSet<PaymentMethod> PaymentMethods { get; set; }
-        public virtual DbSet<PaymentStatus> PaymentStatuses { get; set; }
+        public virtual DbSet<Account> Account { get; set; }
+        public virtual DbSet<AccountType> AccountType { get; set; }
+        public virtual DbSet<Customer> Customer { get; set; }
+        public virtual DbSet<CustomerPaymentMethod> CustomerPaymentMethod { get; set; }
+        public virtual DbSet<Payment> Payment { get; set; }
+        public virtual DbSet<PaymentMethod> PaymentMethod { get; set; }
+        public virtual DbSet<PaymentStatus> PaymentStatus { get; set; }
+        public virtual DbSet<CurrencyExchangeRates> CurrencyExchangeRates { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Server=LAPTOP-J16MIQKO\\SQLEXPRESS;Database=PaymentDB;Trusted_Connection=True;");
-            }
-        }
+//        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+//        {
+//            if (!optionsBuilder.IsConfigured)
+//            {
+//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+//                optionsBuilder.UseSqlServer("Server=LAPTOP-J16MIQKO\\SQLEXPRESS;Database=PaymentDB;Trusted_Connection=True;");
+//            }
+//        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -154,6 +155,17 @@ namespace PaymentsAPI.DataModel
                 entity.Property(e => e.Status)
                     .IsRequired()
                     .HasMaxLength(100);
+            });
+
+            modelBuilder.Entity<CurrencyExchangeRates>(entity =>
+            {
+                entity.HasKey(e => e.CurrencyCode);
+
+                entity.Property(e => e.CurrencyCode)
+                    .HasMaxLength(10)
+                    .ValueGeneratedNever();
+
+                entity.Property(e => e.ExchangeRate).HasColumnType("numeric(18, 4)");
             });
         }
     }
